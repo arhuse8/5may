@@ -17,8 +17,36 @@ const DEFAULT_SCORE: Score = {
 };
 
 const DEFAULT_TOURNAMENTS: Tournament[] = [
-  { id: 't1', name: "Gram Panchayat Cup 🏆", location: "Solapur, MH", date: "10 May 2026", spots: "2 Left!", status: "urgent" },
-  { id: 't2', name: "Kisan Premier League 🌾", location: "Nashik, MH", date: "15 May 2026", spots: "House Full 🚫", status: "full" },
+  { 
+    id: 't1', 
+    name: "Gram Panchayat Cup 🏆", 
+    location: "Solapur, MH", 
+    date: "10 May 2026", 
+    timestamp: "2026-05-10T10:00:00Z",
+    startTime: "10:00 AM",
+    spots: "2 Left!", 
+    status: "urgent" 
+  },
+  { 
+    id: 't2', 
+    name: "Kisan Premier League 🌾", 
+    location: "Nashik, MH", 
+    date: "15 May 2026", 
+    timestamp: "2026-05-15T09:00:00Z",
+    startTime: "09:00 AM",
+    spots: "House Full 🚫", 
+    status: "full" 
+  },
+  { 
+    id: 't3', 
+    name: "Rural Championship 🏏", 
+    location: "Sangli, MH", 
+    date: "12 May 2026", 
+    timestamp: "2026-05-12T08:00:00Z",
+    startTime: "08:00 AM",
+    spots: "10 Left", 
+    status: "open" 
+  },
 ];
 
 const DEFAULT_TICKER = "🚨 Welcome to ApnaCricket.co.in! Registrations for Gram Panchayat Cup are now open. 🏆";
@@ -28,6 +56,7 @@ export default function App() {
   const [isDarkMode, setIsDarkMode] = useState<boolean>(true);
   
   // Database State
+  const [currentUser, setCurrentUser] = useState<any>(null);
   const [liveScore, setLiveScore] = useState<Score>(DEFAULT_SCORE);
   const [tournaments, setTournaments] = useState<Tournament[]>(DEFAULT_TOURNAMENTS);
   const [ticker, setTicker] = useState<string>(DEFAULT_TICKER);
@@ -35,6 +64,11 @@ export default function App() {
 
   // Initialize Auth & Real-time
   useEffect(() => {
+    // Safety timeout to prevent getting stuck on loading screen
+    const timeout = setTimeout(() => {
+      setIsLoading(false);
+    }, 3000);
+
     if (!isSupabaseConfigured) {
       // Demo Mode: Load from LocalStorage
       const savedScore = localStorage.getItem('apna_score');
@@ -47,7 +81,10 @@ export default function App() {
 
     // 1. Auth Listener
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-      if (!session) {
+      if (session) {
+        setCurrentUser(session.user);
+      } else {
+        setCurrentUser(null);
         supabase.auth.signInAnonymously();
       }
     });
@@ -172,6 +209,7 @@ export default function App() {
             exit={{ opacity: 0, y: -20 }}
           >
             <OrganizerDashboard 
+              user={currentUser}
               score={liveScore} 
               tournaments={tournaments} 
               isDarkMode={isDarkMode} 

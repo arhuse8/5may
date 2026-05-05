@@ -8,6 +8,7 @@ import { Score, Tournament } from '../types';
 import { Toast } from '../components/Toast';
 
 interface OrganizerDashboardProps { 
+  user: any;
   score: Score; 
   tournaments: Tournament[]; 
   isDarkMode: boolean; 
@@ -20,10 +21,13 @@ interface OrganizerDashboardProps {
 }
 
 const OrganizerDashboard: React.FC<OrganizerDashboardProps> = ({ 
-  score, tournaments, isDarkMode, toggleTheme, onExit,
+  user, score, tournaments, isDarkMode, toggleTheme, onExit,
   onUpdateScoreLocal, onAddTournamentLocal, onDeleteTournamentLocal
 }) => {
   const [toastMsg, setToastMsg] = useState("");
+  
+  // Filter tournaments to only show user's own content
+  const myTournaments = tournaments.filter(t => (t as any).creator_id === user?.id || (t as any).id?.startsWith('t')); // Include defaults in demo
   
   // Local state for score updating
   const [newRuns, setNewRuns] = useState<number | string>(score.runs);
@@ -78,10 +82,13 @@ const OrganizerDashboard: React.FC<OrganizerDashboardProps> = ({
       id: Math.random().toString(36).substr(2, 9),
       name: newTourneyName + (newTourneyName.includes('🏆') ? '' : ' 🏆'), 
       location: newTourneyLoc, 
-      date: "Registration Open", 
+      date: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }), 
+      timestamp: new Date().toISOString(),
+      startTime: "10:00 AM",
       spots: "16 Slots", 
-      status: "open" 
-    };
+      status: "open",
+      creator_id: user?.id
+    } as any;
 
     if (!isSupabaseConfigured) {
       if (onAddTournamentLocal) onAddTournamentLocal(newT);
@@ -98,7 +105,8 @@ const OrganizerDashboard: React.FC<OrganizerDashboardProps> = ({
           location: newT.location, 
           date: newT.date, 
           spots: newT.spots, 
-          status: newT.status 
+          status: newT.status,
+          creator_id: user?.id
         }]);
         
       if (error) throw error;
@@ -227,7 +235,7 @@ const OrganizerDashboard: React.FC<OrganizerDashboardProps> = ({
 
             <div className="space-y-4">
               <AnimatePresence>
-                {tournaments.map((t) => (
+                {myTournaments.map((t) => (
                   <motion.div 
                     key={t.id} 
                     layout 
@@ -253,7 +261,7 @@ const OrganizerDashboard: React.FC<OrganizerDashboardProps> = ({
                   </motion.div>
                 ))}
               </AnimatePresence>
-              {tournaments.length === 0 && !isCreatingTourney && (
+              {myTournaments.length === 0 && !isCreatingTourney && (
                 <div className="text-center py-16 text-zinc-400 font-bold border-2 border-dashed border-zinc-200 dark:border-zinc-800 rounded-[2rem] bg-zinc-50 dark:bg-transparent">
                   No active local tournaments. Click + to start one.
                 </div>
