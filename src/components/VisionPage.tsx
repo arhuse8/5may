@@ -1,12 +1,14 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { ChevronLeft, Globe, Zap, Target, Rocket, Users, Play } from 'lucide-react';
+import { ChevronLeft, Globe, Zap, Target, Rocket, Users, Play, Sun, Moon } from 'lucide-react';
 
 interface VisionPageProps {
   onBack: () => void;
+  isDarkMode: boolean;
+  toggleTheme: () => void;
 }
 
-const VisionPage: React.FC<VisionPageProps> = ({ onBack }) => {
+const VisionPage: React.FC<VisionPageProps> = ({ onBack, isDarkMode, toggleTheme }) => {
   const cards = [
     {
       icon: <Zap className="text-amber-400" size={32} />,
@@ -37,7 +39,13 @@ const VisionPage: React.FC<VisionPageProps> = ({ onBack }) => {
             <ChevronLeft size={24} />
           </button>
           <h1 className="text-lg font-black uppercase tracking-tighter">The Vision</h1>
-          <div className="w-10"></div>
+          <motion.button 
+            whileTap={{ scale: 0.9 }} 
+            onClick={toggleTheme} 
+            className="p-2 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300"
+          >
+            {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
+          </motion.button>
         </div>
       </header>
 

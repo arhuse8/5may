@@ -279,7 +279,11 @@ export default function App() {
             animate={{ opacity: 1 }} 
             exit={{ opacity: 0 }}
           >
-            <VisionPage onBack={() => setShowVision(false)} />
+            <VisionPage 
+              onBack={() => setShowVision(false)} 
+              isDarkMode={isDarkMode}
+              toggleTheme={toggleTheme}
+            />
           </motion.div>
         ) : activePortal === PortalView.USER ? (
           <motion.div 

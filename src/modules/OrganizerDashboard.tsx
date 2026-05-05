@@ -169,7 +169,7 @@ const OrganizerDashboard: React.FC<OrganizerDashboardProps> = ({
           <div className="flex items-center gap-6">
             <button 
               onClick={onVision}
-              className="hidden md:block text-xs font-black uppercase tracking-widest text-zinc-500 hover:text-rose-500 transition-colors"
+              className="text-xs font-black uppercase tracking-widest text-zinc-500 hover:text-rose-500 transition-colors"
             >
               The Vision
             </button>
