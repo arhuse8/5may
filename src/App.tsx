@@ -56,7 +56,11 @@ const DEFAULT_TICKER = "🚨 Welcome to ApnaCricket.co.in! Registrations for Gra
 
 export default function App() {
   const [activePortal, setActivePortal] = useState<PortalView>(PortalView.USER);
-  const [isDarkMode, setIsDarkMode] = useState<boolean>(true);
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
+    const saved = localStorage.getItem('apna_theme');
+    if (saved) return saved === 'dark';
+    return false; // Default to light mode as requested
+  });
   const [showConfigError, setShowConfigError] = useState(true);
   const [showVision, setShowVision] = useState(false);
   
@@ -67,6 +71,12 @@ export default function App() {
   const [tournaments, setTournaments] = useState<Tournament[]>(DEFAULT_TOURNAMENTS);
   const [ticker, setTicker] = useState<string>(DEFAULT_TICKER);
   const [isLoading, setIsLoading] = useState(true);
+
+  const toggleTheme = () => {
+    const next = !isDarkMode;
+    setIsDarkMode(next);
+    localStorage.setItem('apna_theme', next ? 'dark' : 'light');
+  };
 
   // Theme Sync
   useEffect(() => {
@@ -79,10 +89,11 @@ export default function App() {
 
   // Initialize Auth & Real-time
   useEffect(() => {
-    // Safety timeout - reduced from 3000ms for snappier feel
-    const timeout = setTimeout(() => {
+    // Show UI instantly with defaults while we fetch live data
+    // Only wait 150ms to check for existing session
+    const authTimeout = setTimeout(() => {
       setIsLoading(false);
-    }, 800);
+    }, 150);
 
     if (!isSupabaseConfigured) {
       setIsLoading(false);
@@ -177,6 +188,7 @@ export default function App() {
       .subscribe();
 
     return () => {
+      clearTimeout(authTimeout);
       authListener.subscription.unsubscribe();
       supabase.removeChannel(scoreChannel);
       supabase.removeChannel(tourneyChannel);
@@ -204,12 +216,24 @@ export default function App() {
 
   return (
     <div className={isDarkMode ? 'dark' : ''}>
-      <Toaster position="bottom-center" />
+      <Toaster 
+        position="bottom-center" 
+        toastOptions={{
+          style: {
+            borderRadius: '1rem',
+            background: isDarkMode ? '#18181b' : '#fff',
+            color: isDarkMode ? '#fff' : '#18181b',
+            border: isDarkMode ? '1px solid #27272a' : '1px solid #e4e4e7',
+            fontWeight: '600',
+            fontSize: '0.875rem'
+          }
+        }}
+      />
       
-      {/* Dynamic Backgrounds - GPU Accelerated */}
+      {/* Dynamic Backgrounds - GPU Accelerated Optimization */}
       <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
-        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-emerald-500/5 dark:bg-emerald-500/10 rounded-full blur-[120px] transform-gpu will-change-transform"></div>
-        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-rose-500/5 dark:bg-rose-500/10 rounded-full blur-[120px] transform-gpu will-change-transform"></div>
+        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-emerald-500/5 dark:bg-emerald-500/10 rounded-full blur-[80px] transform-gpu"></div>
+        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-rose-500/5 dark:bg-rose-500/10 rounded-full blur-[80px] transform-gpu"></div>
       </div>
 
       {showConfigError && (window as any)._supabaseError && (
@@ -271,13 +295,14 @@ export default function App() {
           </motion.div>
         </div>
       )}
-      <AnimatePresence mode="wait">
+      <AnimatePresence>
         {showVision ? (
           <motion.div 
             key="vision" 
             initial={{ opacity: 0 }} 
             animate={{ opacity: 1 }} 
             exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
           >
             <VisionPage 
               onBack={() => setShowVision(false)} 
@@ -291,13 +316,14 @@ export default function App() {
             initial={{ opacity: 0 }} 
             animate={{ opacity: 1 }} 
             exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
           >
             <UserApp 
               score={liveScore} 
               tournaments={tournaments} 
               ticker={ticker}
               isDarkMode={isDarkMode} 
-              toggleTheme={() => setIsDarkMode(!isDarkMode)} 
+              toggleTheme={toggleTheme} 
               onOrganizerLogin={() => setActivePortal(PortalView.ORGANIZER)}
               onVision={() => setShowVision(true)}
             />
@@ -305,9 +331,10 @@ export default function App() {
         ) : (
           <motion.div 
             key="organizer" 
-            initial={{ opacity: 0, y: 20 }} 
-            animate={{ opacity: 1, y: 0 }} 
-            exit={{ opacity: 0, y: -20 }}
+            initial={{ opacity: 0, scale: 0.98 }} 
+            animate={{ opacity: 1, scale: 1 }} 
+            exit={{ opacity: 0, scale: 0.98 }}
+            transition={{ duration: 0.15 }}
           >
             <OrganizerDashboard 
               user={currentUser}
@@ -315,7 +342,7 @@ export default function App() {
               score={liveScore} 
               tournaments={tournaments} 
               isDarkMode={isDarkMode} 
-              toggleTheme={() => setIsDarkMode(!isDarkMode)} 
+              toggleTheme={toggleTheme} 
               onExit={() => setActivePortal(PortalView.USER)}
               onUpdateScoreLocal={(s) => setLiveScore(s)}
               onAddTournamentLocal={(t) => setTournaments([t, ...tournaments])}

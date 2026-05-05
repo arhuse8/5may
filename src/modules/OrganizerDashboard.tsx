@@ -310,13 +310,14 @@ const OrganizerDashboard: React.FC<OrganizerDashboardProps> = ({
             <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-[2.5rem] p-8 shadow-2xl relative overflow-hidden">
                <div className="absolute top-0 right-0 w-48 h-48 bg-rose-500/10 rounded-full blur-[80px] pointer-events-none -mr-20 -mt-20 transform-gpu will-change-transform"></div>
                
-               <AnimatePresence mode="wait">
+               <AnimatePresence>
                  {isAdvancedScoring ? (
                    <motion.div 
                      key="advanced"
-                     initial={{ opacity: 0, x: 20 }}
-                     animate={{ opacity: 1, x: 0 }}
-                     exit={{ opacity: 0, x: -20 }}
+                     initial={{ opacity: 0 }}
+                     animate={{ opacity: 1 }}
+                     exit={{ opacity: 0 }}
+                     transition={{ duration: 0.15 }}
                    >
                       <ScoringForm 
                         matchId={activeMatch?.id || "demo-match-1"}
@@ -341,9 +342,10 @@ const OrganizerDashboard: React.FC<OrganizerDashboardProps> = ({
                  ) : (
                    <motion.div 
                      key="simple"
-                     initial={{ opacity: 0, x: -20 }}
-                     animate={{ opacity: 1, x: 0 }}
-                     exit={{ opacity: 0, x: 20 }}
+                     initial={{ opacity: 0 }}
+                     animate={{ opacity: 1 }}
+                     exit={{ opacity: 0 }}
+                     transition={{ duration: 0.15 }}
                    >
                       <div className="flex justify-between items-center mb-8 border-b border-zinc-100 dark:border-zinc-800 pb-5">
                         <p className="text-xs text-zinc-500 font-black uppercase tracking-widest">{score.teamA} <span className="text-zinc-300 dark:text-zinc-700">VS</span> {score.teamB}</p>

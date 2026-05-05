@@ -88,8 +88,7 @@ const UserApp: React.FC<UserAppProps> = ({ score, tournaments, ticker, isDarkMod
             <div className="bg-emerald-500 p-1.5 rounded-xl text-white shadow-[0_0_15px_rgba(16,185,129,0.4)]">
               <Trophy size={20} />
             </div>
-            <span className="text-xl font-black tracking-tight text-zinc-900 dark:text-white hidden sm:inline">APNA CRICKET</span>
-            <span className="text-xl font-black tracking-tight text-zinc-900 dark:text-white sm:hidden">APNA</span>
+            <span className="text-xl font-black tracking-tight text-zinc-900 dark:text-white">APNA CRICKET</span>
           </div>
 
           <nav className="hidden md:flex items-center gap-2">
@@ -133,9 +132,9 @@ const UserApp: React.FC<UserAppProps> = ({ score, tournaments, ticker, isDarkMod
       </AnimatePresence>
 
       <main className="max-w-7xl mx-auto px-4 mt-8">
-        <AnimatePresence mode="wait">
+        <AnimatePresence>
           {activeSubView === UserSubView.HOME && (
-            <motion.div key="home" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-12">
+            <motion.div key="home" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }} className="space-y-12">
                 <div className="text-center py-8">
                     <motion.h1 className="text-4xl md:text-6xl font-black mb-4 tracking-tighter">
                         Play Local. <span className="text-emerald-500">Score Global.</span> 🌍
@@ -164,7 +163,7 @@ const UserApp: React.FC<UserAppProps> = ({ score, tournaments, ticker, isDarkMod
           )}
 
           {activeSubView === UserSubView.LIVE && (
-            <motion.div key="live" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="py-12">
+            <motion.div key="live" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }} className="py-12">
                 <div className="max-w-3xl mx-auto space-y-12">
                    <div className="text-center">
                         <h2 className="text-3xl font-black uppercase tracking-tighter mb-4">Match Center 📡</h2>
@@ -195,7 +194,7 @@ const UserApp: React.FC<UserAppProps> = ({ score, tournaments, ticker, isDarkMod
           )}
 
           {activeSubView === UserSubView.LEAGUES && (
-            <motion.div key="leagues" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8 py-8">
+            <motion.div key="leagues" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }} className="space-y-8 py-8">
                 <div className="flex flex-col md:flex-row justify-between items-center gap-6">
                     <div>
                         <h2 className="text-3xl font-black uppercase tracking-tighter">Explore Leagues 🏆</h2>

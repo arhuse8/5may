@@ -72,9 +72,9 @@ const VisionPage: React.FC<VisionPageProps> = ({ onBack, isDarkMode, toggleTheme
           {cards.map((card, idx) => (
             <motion.div
               key={idx}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 * idx }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.05 * idx, duration: 0.15 }}
               className="bg-white dark:bg-zinc-900 p-8 rounded-[2.5rem] border border-zinc-200 dark:border-zinc-800 shadow-xl"
             >
               <div className="mb-6">{card.icon}</div>
