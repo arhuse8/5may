@@ -2,10 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { supabase, isSupabaseConfigured } from './lib/supabase';
 import { Score, Tournament, PortalView } from './types';
+import { AlertTriangle, X as CloseIcon } from 'lucide-react';
+import { Toaster } from 'react-hot-toast';
 
 // Modules
 import UserApp from './modules/UserApp';
 import OrganizerDashboard from './modules/OrganizerDashboard';
+import VisionPage from './components/VisionPage';
 
 // Constants
 const DEFAULT_SCORE: Score = {
@@ -54,75 +57,92 @@ const DEFAULT_TICKER = "🚨 Welcome to ApnaCricket.co.in! Registrations for Gra
 export default function App() {
   const [activePortal, setActivePortal] = useState<PortalView>(PortalView.USER);
   const [isDarkMode, setIsDarkMode] = useState<boolean>(true);
+  const [showConfigError, setShowConfigError] = useState(true);
+  const [showVision, setShowVision] = useState(false);
   
   // Database State
   const [currentUser, setCurrentUser] = useState<any>(null);
+  const [organizerProfile, setOrganizerProfile] = useState<any>(null);
   const [liveScore, setLiveScore] = useState<Score>(DEFAULT_SCORE);
   const [tournaments, setTournaments] = useState<Tournament[]>(DEFAULT_TOURNAMENTS);
   const [ticker, setTicker] = useState<string>(DEFAULT_TICKER);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Theme Sync
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [isDarkMode]);
+
   // Initialize Auth & Real-time
   useEffect(() => {
-    // Safety timeout to prevent getting stuck on loading screen
+    // Safety timeout - reduced from 3000ms for snappier feel
     const timeout = setTimeout(() => {
       setIsLoading(false);
-    }, 3000);
+    }, 800);
 
     if (!isSupabaseConfigured) {
-      // Demo Mode: Load from LocalStorage
-      const savedScore = localStorage.getItem('apna_score');
-      const savedTournaments = localStorage.getItem('apna_tournaments');
-      if (savedScore) setLiveScore(JSON.parse(savedScore));
-      if (savedTournaments) setTournaments(JSON.parse(savedTournaments));
       setIsLoading(false);
       return;
     }
 
+    const fetchProfile = async (uid: string) => {
+      const savedMobile = localStorage.getItem('apna_logged_mobile');
+      
+      const [byUidRes, byMobileRes] = await Promise.all([
+        supabase.from('organizers').select('*').eq('id', uid).single(),
+        savedMobile ? supabase.from('organizers').select('*').eq('mobile', savedMobile).single() : Promise.resolve({ data: null })
+      ]);
+
+      if (byUidRes.data) {
+        setOrganizerProfile(byUidRes.data);
+      } else if (byMobileRes.data) {
+        setOrganizerProfile(byMobileRes.data);
+      }
+    };
+
     // 1. Auth Listener
-    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (session) {
         setCurrentUser(session.user);
+        await fetchProfile(session.user.id);
       } else {
         setCurrentUser(null);
-        supabase.auth.signInAnonymously();
+        setOrganizerProfile(null);
+        supabase.auth.signInAnonymously().catch(() => {});
       }
+      setIsLoading(false); // Auth ready
     });
 
     // 2. Initial Data Fetch
     const fetchData = async () => {
       try {
-        // Fetch Score
-        const { data: scoreData } = await supabase
-          .from('live_scores')
-          .select('*')
-          .eq('status', 'active')
-          .single();
-        if (scoreData) {
+        const [scoreRes, tourneyRes, tickerRes] = await Promise.all([
+          supabase.from('live_scores').select('*').eq('status', 'active').maybeSingle(),
+          supabase.from('tournaments').select('*').order('created_at', { ascending: false }),
+          supabase.from('settings').select('value').eq('key', 'ticker').maybeSingle()
+        ]);
+
+        if (scoreRes.data) {
           setLiveScore({
-            teamA: scoreData.team_a,
-            teamB: scoreData.team_b,
-            runs: scoreData.runs,
-            wickets: scoreData.wickets,
-            overs: scoreData.overs
+            teamA: scoreRes.data.team_a,
+            teamB: scoreRes.data.team_b,
+            runs: scoreRes.data.runs,
+            wickets: scoreRes.data.wickets,
+            overs: scoreRes.data.overs
           });
         }
 
-        // Fetch Tournaments
-        const { data: tourneyData } = await supabase
-          .from('tournaments')
-          .select('*')
-          .order('created_at', { ascending: false });
-        if (tourneyData && tourneyData.length > 0) setTournaments(tourneyData);
+        if (tourneyRes.data && tourneyRes.data.length > 0) {
+          setTournaments(tourneyRes.data);
+        }
 
-        // Fetch Ticker
-        const { data: tickerData } = await supabase
-          .from('settings')
-          .select('value')
-          .eq('key', 'ticker')
-          .single();
-        if (tickerData) setTicker(tickerData.value);
-
+        if (tickerRes.data) {
+          setTicker(tickerRes.data.value);
+        }
       } catch (err) {
         console.error("Initial load error:", err);
       } finally {
@@ -184,8 +204,84 @@ export default function App() {
 
   return (
     <div className={isDarkMode ? 'dark' : ''}>
+      <Toaster position="bottom-center" />
+      
+      {/* Dynamic Backgrounds - GPU Accelerated */}
+      <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
+        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-emerald-500/5 dark:bg-emerald-500/10 rounded-full blur-[120px] transform-gpu will-change-transform"></div>
+        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-rose-500/5 dark:bg-rose-500/10 rounded-full blur-[120px] transform-gpu will-change-transform"></div>
+      </div>
+
+      {showConfigError && (window as any)._supabaseError && (
+        <div className="fixed inset-0 z-[100] bg-zinc-950/90 backdrop-blur-md flex items-center justify-center p-4">
+          <motion.div 
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="bg-zinc-900 border border-rose-500/50 rounded-3xl max-w-xl w-full p-8 shadow-2xl shadow-rose-500/20"
+          >
+            <div className="flex items-center gap-4 mb-6">
+              <div className="w-12 h-12 bg-rose-500/20 rounded-2xl flex items-center justify-center text-rose-500">
+                <AlertTriangle size={28} />
+              </div>
+              <h2 className="text-2xl font-black text-white tracking-tight">Configuration Error</h2>
+            </div>
+            
+            <div className="bg-rose-500/10 border border-rose-500/20 rounded-2xl p-4 mb-8">
+              <p className="text-rose-100 text-sm font-medium leading-relaxed">
+                {(window as any)._supabaseError}
+              </p>
+            </div>
+
+            <div className="space-y-4 mb-8">
+              <h3 className="text-white font-bold text-sm uppercase tracking-widest text-zinc-500">How to Fix:</h3>
+              <ol className="space-y-3 text-zinc-400 text-sm">
+                <li className="flex gap-3">
+                  <span className="w-6 h-6 bg-zinc-800 rounded-full flex items-center justify-center text-xs font-bold text-zinc-200 shrink-0">1</span>
+                  <span>Open your **Supabase Dashboard** and go to **Project Settings** {'>'} **API**.</span>
+                </li>
+                <li className="flex gap-3">
+                  <span className="w-6 h-6 bg-zinc-800 rounded-full flex items-center justify-center text-xs font-bold text-zinc-200 shrink-0">2</span>
+                  <span>Copy the **anon public** key (it must start with `eyJ`).</span>
+                </li>
+                <li className="flex gap-3">
+                  <span className="w-6 h-6 bg-zinc-800 rounded-full flex items-center justify-center text-xs font-bold text-zinc-200 shrink-0">3</span>
+                  <span>In AI Studio, click the **Settings** (Gear icon) top right.</span>
+                </li>
+                <li className="flex gap-3">
+                  <span className="w-6 h-6 bg-zinc-800 rounded-full flex items-center justify-center text-xs font-bold text-zinc-200 shrink-0">4</span>
+                  <span>Go to **Secrets** and update `VITE_SUPABASE_ANON_KEY`.</span>
+                </li>
+              </ol>
+            </div>
+
+            <div className="flex gap-3">
+              <button 
+                onClick={() => setShowConfigError(false)}
+                className="flex-1 bg-zinc-800 hover:bg-zinc-700 text-white font-bold py-4 rounded-2xl transition-all"
+              >
+                Try anyway (Demo Mode)
+              </button>
+              <button 
+                onClick={() => window.location.reload()}
+                className="flex-1 bg-rose-600 hover:bg-rose-500 text-white font-bold py-4 rounded-2xl transition-all shadow-lg shadow-rose-600/30"
+              >
+                Check again
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
       <AnimatePresence mode="wait">
-        {activePortal === PortalView.USER ? (
+        {showVision ? (
+          <motion.div 
+            key="vision" 
+            initial={{ opacity: 0 }} 
+            animate={{ opacity: 1 }} 
+            exit={{ opacity: 0 }}
+          >
+            <VisionPage onBack={() => setShowVision(false)} />
+          </motion.div>
+        ) : activePortal === PortalView.USER ? (
           <motion.div 
             key="user" 
             initial={{ opacity: 0 }} 
@@ -199,6 +295,7 @@ export default function App() {
               isDarkMode={isDarkMode} 
               toggleTheme={() => setIsDarkMode(!isDarkMode)} 
               onOrganizerLogin={() => setActivePortal(PortalView.ORGANIZER)}
+              onVision={() => setShowVision(true)}
             />
           </motion.div>
         ) : (
@@ -210,6 +307,7 @@ export default function App() {
           >
             <OrganizerDashboard 
               user={currentUser}
+              profile={organizerProfile}
               score={liveScore} 
               tournaments={tournaments} 
               isDarkMode={isDarkMode} 
@@ -218,6 +316,7 @@ export default function App() {
               onUpdateScoreLocal={(s) => setLiveScore(s)}
               onAddTournamentLocal={(t) => setTournaments([t, ...tournaments])}
               onDeleteTournamentLocal={(id) => setTournaments(tournaments.filter(t => t.id !== id))}
+              onVision={() => setShowVision(true)}
             />
           </motion.div>
         )}

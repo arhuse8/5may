@@ -19,9 +19,10 @@ interface UserAppProps {
   isDarkMode: boolean; 
   toggleTheme: () => void; 
   onOrganizerLogin: () => void; 
+  onVision: () => void;
 }
 
-const UserApp: React.FC<UserAppProps> = ({ score, tournaments, ticker, isDarkMode, toggleTheme, onOrganizerLogin }) => {
+const UserApp: React.FC<UserAppProps> = ({ score, tournaments, ticker, isDarkMode, toggleTheme, onOrganizerLogin, onVision }) => {
   const [activeSubView, setActiveSubView] = useState<UserSubView>(UserSubView.HOME);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isOrganizerAuthOpen, setIsOrganizerAuthOpen] = useState(false);
@@ -99,6 +100,13 @@ const UserApp: React.FC<UserAppProps> = ({ score, tournaments, ticker, isDarkMod
           </nav>
 
           <div className="flex items-center gap-3">
+            <motion.button 
+              whileTap={{ scale: 0.95 }}
+              onClick={onVision}
+              className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest text-zinc-500 hover:text-emerald-500 transition-colors"
+            >
+              Vision
+            </motion.button>
             <motion.button whileTap={{ scale: 0.9 }} onClick={toggleTheme} className="p-2 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors">
               {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
             </motion.button>

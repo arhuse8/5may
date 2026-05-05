@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Shield, Plus, Lock, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
+import bcrypt from 'bcryptjs';
 
 export const CreateMatchAuthModal: React.FC<{ isOpen: boolean; onClose: () => void; onSuccess: () => void }> = ({ isOpen, onClose, onSuccess }) => {
   const [mode, setMode] = useState<'select' | 'new' | 'old'>('select');
@@ -20,10 +21,20 @@ export const CreateMatchAuthModal: React.FC<{ isOpen: boolean; onClose: () => vo
       setMode('select');
       setErrorMsg("");
       setSuccessMsg("");
+      setFormData({ name: "", mobile: "", pin: "" });
     }
   }, [isOpen]);
 
   const handleAction = async () => {
+    if (!formData.mobile || formData.mobile.length < 10) {
+      setErrorMsg("Please enter a valid 10-digit mobile number.");
+      return;
+    }
+    if (!formData.pin || formData.pin.length !== 4) {
+      setErrorMsg("PIN must be exactly 4 digits.");
+      return;
+    }
+
     setIsLoading(true);
     setErrorMsg("");
     setSuccessMsg("");
@@ -37,27 +48,67 @@ export const CreateMatchAuthModal: React.FC<{ isOpen: boolean; onClose: () => vo
         return;
       }
 
-      const { data: { user }, error: authError } = await supabase.auth.signInAnonymously();
-      if (authError) throw authError;
-
       if (mode === 'new') {
+        if (!formData.name) {
+          throw new Error("Please enter your name.");
+        }
+
+        let authUser;
+        try {
+          const { data: authData, error: authError } = await supabase.auth.signInAnonymously();
+          if (authError) throw authError;
+          authUser = authData.user;
+        } catch (authErr: any) {
+          if (authErr.message?.includes('Anonymous sign-ins are disabled')) {
+            throw new Error("ERROR: Anonymous login is disabled in Supabase. Please enable it in Auth > Providers.");
+          }
+          throw authErr;
+        }
+
+        // Hash the PIN
+        const salt = bcrypt.genSaltSync(10);
+        const hashedPin = bcrypt.hashSync(formData.pin, salt);
+
         const { error: dbError } = await supabase
           .from('organizers')
           .insert([{
-            id: user?.id,
+            id: authUser?.id,
             name: formData.name,
             mobile: formData.mobile,
-            pin: formData.pin
+            pin_hash: hashedPin
           }]);
-        if (dbError) throw dbError;
+        
+        if (dbError) {
+          if (dbError.code === '23505') throw new Error("This mobile number is already registered.");
+          throw dbError;
+        }
       } else {
+        // Login: Fetch by mobile
         const { data, error: dbError } = await supabase
           .from('organizers')
           .select('*')
           .eq('mobile', formData.mobile)
-          .eq('pin', formData.pin)
           .single();
-        if (dbError || !data) throw new Error("Invalid mobile number or PIN.");
+        
+        if (dbError || !data) throw new Error("Account not found. Please register first.");
+
+        // Compare hash
+        const isMatch = bcrypt.compareSync(formData.pin, data.pin_hash);
+        if (!isMatch) throw new Error("Incorrect PIN. Please try again.");
+
+        // Persist mobile for profile fetching if they switch devices
+        localStorage.setItem('apna_logged_mobile', formData.mobile);
+
+        // If matched, sign in anonymously to keep session valid
+        try {
+          const { error: authError } = await supabase.auth.signInAnonymously();
+          if (authError) throw authError;
+        } catch (authErr: any) {
+          if (authErr.message?.includes('Anonymous sign-ins are disabled')) {
+             throw new Error("ERROR: Anonymous login is disabled in Supabase. Please enable it in Auth > Providers.");
+          }
+          throw authErr;
+        }
       }
 
       setSuccessMsg(mode === 'new' ? "Account Registered! 🔥" : "Welcome back! 🏏");
