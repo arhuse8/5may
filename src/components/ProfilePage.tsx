@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { ChevronLeft, Camera, Shield, Star, Medal, MapPin, Phone, Mail, User, Edit3, Save, Trophy, TrendingUp } from 'lucide-react';
+import { ChevronLeft, Camera, Shield, Star, Medal, MapPin, Phone, Mail, User, Edit3, Save, Trophy, TrendingUp, Plus, Zap } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 interface ProfilePageProps {
@@ -13,10 +13,15 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ onBack }) => {
     name: "Avinash Huse",
     phone: "+91 98765 43210",
     email: "avinash@apnacricket.com",
+    password: "••••••••",
     role: "All Rounder",
     location: "Solapur, MH",
     bio: "Passionate about local cricket and building the future of the game.",
   });
+
+  const handleInputChange = (field: string, value: string) => {
+    setProfileData(prev => ({ ...prev, [field]: value }));
+  };
 
   const stats = [
     { label: "Matches", val: "42" },
@@ -45,8 +50,14 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ onBack }) => {
       <main className="max-w-5xl mx-auto px-4 -mt-20 relative z-20 pb-20">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left: Identity Card */}
-          <div className="lg:col-span-1 space-y-6">
+              <div className="lg:col-span-1 space-y-6">
             <div className="bg-white dark:bg-zinc-900 p-8 rounded-[2.5rem] border border-zinc-200 dark:border-zinc-800 shadow-xl text-center relative overflow-hidden">
+              <div className="absolute top-4 right-4 flex items-center gap-1.5 opacity-40">
+                <div className="w-5 h-5 bg-zinc-950 dark:bg-white rounded flex items-center justify-center">
+                  <span className="text-[8px] font-black text-white dark:text-zinc-950 italic">G</span>
+                </div>
+                <span className="text-[8px] font-black tracking-widest uppercase">GNZ</span>
+              </div>
               <div className="relative inline-block mb-6">
                 <div className="w-32 h-32 rounded-[2rem] bg-gradient-to-tr from-red-600 to-red-800 p-1">
                   <div className="w-full h-full rounded-[1.8rem] bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center font-black text-4xl overflow-hidden border-4 border-white dark:border-zinc-900 shadow-xl">
@@ -58,7 +69,15 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ onBack }) => {
                 </button>
               </div>
 
-              <h2 className="text-2xl font-black italic uppercase tracking-tighter">{profileData.name}</h2>
+              {isEditing ? (
+                <input 
+                  value={profileData.name}
+                  onChange={(e) => handleInputChange('name', e.target.value)}
+                  className="bg-zinc-100 dark:bg-zinc-800 border-2 border-red-600/20 rounded-2xl px-4 py-2 text-xl font-black italic uppercase tracking-tighter w-full text-center outline-none focus:border-red-600 transition-colors"
+                />
+              ) : (
+                <h2 className="text-2xl font-black italic uppercase tracking-tighter">{profileData.name}</h2>
+              )}
               <div className="inline-flex items-center gap-2 px-3 py-1 bg-zinc-100 dark:bg-zinc-800 rounded-lg text-[10px] font-black uppercase tracking-widest text-zinc-500 mt-2 mb-6">
                 Player ID: #PC2026_AH
               </div>
@@ -73,6 +92,21 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ onBack }) => {
                     <span>{profileData.role}</span>
                 </div>
               </div>
+            </div>
+
+            <div className="bg-zinc-900 shadow-2xl shadow-red-900/40 rounded-[2.5rem] p-8 text-white relative overflow-hidden group">
+                <div className="absolute inset-0 bg-gradient-to-br from-red-600/20 to-transparent"></div>
+                <div className="relative z-10">
+                    <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-xs font-black uppercase tracking-widest text-zinc-500">Host Experience</h3>
+                        <Zap className="text-yellow-500 animate-pulse" size={20} />
+                    </div>
+                    <p className="text-sm font-bold text-zinc-300 mb-6 leading-relaxed">Want to organize your own local village tournament? Launch it now via GNZ Engine.</p>
+                    <button className="w-full bg-red-600 hover:bg-red-500 text-white font-black py-4 rounded-2xl flex items-center justify-center gap-3 transition-all shadow-lg shadow-red-600/20 group-hover:scale-[1.02]">
+                        <Plus size={20} />
+                        <span className="uppercase tracking-widest text-xs">Create Tournament</span>
+                    </button>
+                </div>
             </div>
 
             <div className="bg-zinc-900 rounded-[2.5rem] p-8 text-white">
@@ -134,24 +168,83 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ onBack }) => {
                             <label className="text-[10px] font-black uppercase text-zinc-400 tracking-widest px-2">Phone Number</label>
                             <div className="flex items-center gap-4 bg-zinc-50 dark:bg-zinc-950 p-4 rounded-2xl border border-zinc-100 dark:border-zinc-800">
                                 <Phone size={18} className="text-zinc-500" />
-                                <span className="font-bold text-sm tracking-wide">{profileData.phone}</span>
+                                {isEditing ? (
+                                    <input 
+                                        value={profileData.phone}
+                                        onChange={(e) => handleInputChange('phone', e.target.value)}
+                                        className="bg-transparent font-bold text-sm tracking-wide w-full outline-none"
+                                    />
+                                ) : (
+                                    <span className="font-bold text-sm tracking-wide">{profileData.phone}</span>
+                                )}
                             </div>
                         </div>
                         <div className="space-y-2">
-                            <label className="text-[10px] font-black uppercase text-zinc-400 tracking-widest px-2">Official Email</label>
+                            <label className="text-[10px] font-black uppercase text-zinc-400 tracking-widest px-2">Official Email (Optional)</label>
                             <div className="flex items-center gap-4 bg-zinc-50 dark:bg-zinc-950 p-4 rounded-2xl border border-zinc-100 dark:border-zinc-800">
                                 <Mail size={18} className="text-zinc-500" />
-                                <span className="font-bold text-sm">{profileData.email}</span>
+                                {isEditing ? (
+                                    <input 
+                                        value={profileData.email}
+                                        placeholder="Add email..."
+                                        onChange={(e) => handleInputChange('email', e.target.value)}
+                                        className="bg-transparent font-bold text-sm w-full outline-none"
+                                    />
+                                ) : (
+                                    <span className="font-bold text-sm">{profileData.email || "Not specified"}</span>
+                                )}
+                            </div>
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black uppercase text-zinc-400 tracking-widest px-2">Account Password</label>
+                            <div className="flex items-center gap-4 bg-zinc-50 dark:bg-zinc-950 p-4 rounded-2xl border border-zinc-100 dark:border-zinc-800">
+                                <Shield size={18} className="text-zinc-500" />
+                                {isEditing ? (
+                                    <input 
+                                        type="password"
+                                        value={profileData.password}
+                                        onChange={(e) => handleInputChange('password', e.target.value)}
+                                        className="bg-transparent font-bold text-sm w-full outline-none"
+                                    />
+                                ) : (
+                                    <span className="font-bold text-sm tracking-widest">••••••••</span>
+                                )}
+                            </div>
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black uppercase text-zinc-400 tracking-widest px-2">Home Location</label>
+                            <div className="flex items-center gap-4 bg-zinc-50 dark:bg-zinc-950 p-4 rounded-2xl border border-zinc-100 dark:border-zinc-800">
+                                <MapPin size={18} className="text-zinc-500" />
+                                {isEditing ? (
+                                    <input 
+                                        value={profileData.location}
+                                        onChange={(e) => handleInputChange('location', e.target.value)}
+                                        className="bg-transparent font-bold text-sm w-full outline-none"
+                                    />
+                                ) : (
+                                    <span className="font-bold text-sm">{profileData.location}</span>
+                                )}
                             </div>
                         </div>
                     </div>
 
                     <div className="space-y-2">
                         <label className="text-[10px] font-black uppercase text-zinc-400 tracking-widest px-2">Career Biography</label>
-                        <div className="bg-zinc-50 dark:bg-zinc-950 p-6 rounded-[2rem] border border-zinc-100 dark:border-zinc-800 min-h-[120px]">
-                            <p className="font-medium text-zinc-600 dark:text-zinc-300 leading-relaxed text-sm">
-                                {profileData.bio}
-                            </p>
+                        <div className={cn(
+                            "bg-zinc-50 dark:bg-zinc-950 p-6 rounded-[2rem] border border-zinc-100 dark:border-zinc-800 min-h-[120px]",
+                            isEditing && "border-red-600/20 ring-1 ring-red-600/10"
+                        )}>
+                            {isEditing ? (
+                                <textarea 
+                                    value={profileData.bio}
+                                    onChange={(e) => handleInputChange('bio', e.target.value)}
+                                    className="bg-transparent font-medium text-zinc-600 dark:text-zinc-300 leading-relaxed text-sm w-full h-full min-h-[100px] outline-none resize-none"
+                                />
+                            ) : (
+                                <p className="font-medium text-zinc-600 dark:text-zinc-300 leading-relaxed text-sm">
+                                    {profileData.bio}
+                                </p>
+                            )}
                         </div>
                     </div>
                 </div>

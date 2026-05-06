@@ -26,14 +26,11 @@ export const PlayerDashboard: React.FC<PlayerDashboardProps> = ({ score, onNavig
         <div className="flex items-center gap-3">
           <button 
             onClick={() => onNavigate(UserSubView.PROFILE)}
-            className="w-12 h-12 rounded-full border-2 border-red-600 p-0.5 overflow-hidden"
+            className="w-14 h-14 rounded-full border-2 border-red-600 flex items-center justify-center p-0.5 group-hover:scale-105 transition-transform bg-white dark:bg-zinc-900 overflow-hidden"
           >
-            <img 
-              src="https://images.unsplash.com/photo-1540747913346-ad966236bb5c?auto=format&fit=crop&q=80&w=150" 
-              alt="Profile" 
-              className="w-full h-full rounded-full object-cover"
-              referrerPolicy="no-referrer"
-            />
+            <div className="w-full h-full rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
+              <span className="text-[10px] font-black text-zinc-950 dark:text-white uppercase leading-none">Apna</span>
+            </div>
           </button>
           <div>
             <h1 className="text-lg font-black tracking-tight leading-tight flex items-center gap-1 uppercase">
@@ -259,7 +256,7 @@ export const PlayerDashboard: React.FC<PlayerDashboardProps> = ({ score, onNavig
             className="flex flex-col items-center gap-1 flex-1 text-zinc-400"
           >
             <User size={22} strokeWidth={2.5} />
-            <span className="text-[9px] font-black uppercase tracking-tight">Profile</span>
+            <span className="text-[9px] font-black uppercase tracking-tight">Apna</span>
           </button>
         </div>
       </footer>

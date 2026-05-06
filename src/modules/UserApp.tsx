@@ -140,12 +140,32 @@ const UserApp: React.FC<UserAppProps> = ({ score, tournaments, ticker, isDarkMod
       {/* Navbar - Hidden when on High-Polish Dashboard */}
       {!isDashboardView || activeSubView !== UserSubView.HOME ? (
         <header className="bg-white dark:bg-zinc-950 sticky top-0 z-40 border-b border-zinc-100 dark:border-zinc-800 shadow-sm shrink-0">
-          <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-            <div className="flex items-center gap-2 cursor-pointer" onClick={() => handleNavigate(UserSubView.HOME)}>
-              <div className="bg-red-600 p-1.5 rounded-xl text-white shadow-[0_0_15px_rgba(220,38,38,0.4)]">
-                <Trophy size={20} />
+          <div className="max-w-7xl mx-auto px-4 h-20 flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              {/* Profile Logo with Red Ring */}
+              <div 
+                className="relative cursor-pointer group"
+                onClick={() => handleNavigate(UserSubView.PROFILE)}
+              >
+                <div className="w-14 h-14 rounded-full border-2 border-red-600 flex items-center justify-center p-0.5 group-hover:scale-105 transition-transform bg-white dark:bg-zinc-900">
+                  <div className="w-full h-full rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center overflow-hidden">
+                    <span className="text-[10px] font-black text-zinc-950 dark:text-white uppercase leading-none">Apna</span>
+                  </div>
+                </div>
               </div>
-              <span className="text-xl font-black tracking-tight text-zinc-900 dark:text-white uppercase">APNA<span className="text-red-600">CRICKET</span></span>
+
+              <div className="flex flex-col cursor-pointer" onClick={() => handleNavigate(UserSubView.HOME)}>
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl font-black tracking-tighter text-zinc-900 dark:text-white uppercase leading-none flex items-center gap-2">
+                    APNA <span className="text-red-600">CRICKET</span> 👋
+                  </span>
+                  <div className="flex items-center gap-1 px-2 py-0.5 bg-black dark:bg-white rounded text-[8px] font-black">
+                     <span className="text-white dark:text-black italic">G</span>
+                     <span className="text-zinc-500 uppercase tracking-tighter">GNZ_ENGINE</span>
+                  </div>
+                </div>
+                <span className="text-[9px] font-black tracking-[0.25em] text-zinc-400 mt-1.5 uppercase">Ready for today's game?</span>
+              </div>
             </div>
 
             <nav className="hidden md:flex items-center gap-4">
