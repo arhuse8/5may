@@ -37,14 +37,14 @@ export const VisionModal: React.FC<{ isOpen: boolean; onClose: () => void; onSec
             <div className="space-y-6 text-zinc-700 dark:text-zinc-300 text-center">
               <p className="leading-relaxed text-sm md:text-base font-medium">
                 Empowering rural sports talent. We believe every village has a hero waiting to be discovered. 
-                Through <span onClick={handleSecretTap} className="select-none text-emerald-600 dark:text-emerald-400 font-black tracking-wide cursor-pointer decoration-2 underline-offset-4 decoration-emerald-500/30 hover:underline">APNA CRICKET</span>, we bring professional live scoring straight to your local ground.
+                Through <span onClick={handleSecretTap} className="select-none text-red-600 dark:text-red-400 font-black tracking-wide cursor-pointer decoration-2 underline-offset-4 decoration-red-500/30 hover:underline">APNA CRICKET</span>, we bring professional live scoring straight to your local ground.
               </p>
               <div className="border-t border-zinc-200 dark:border-zinc-800 pt-6 mt-6 flex justify-center">
                 <div className="flex items-center gap-4 bg-zinc-50 dark:bg-zinc-950 p-4 rounded-2xl border border-zinc-100 dark:border-zinc-800 inline-flex shadow-sm">
-                  <div className="w-14 h-14 bg-gradient-to-br from-emerald-400 to-indigo-500 rounded-full flex items-center justify-center text-white font-black text-xl shadow-lg border-2 border-white dark:border-zinc-800">AH</div>
+                  <div className="w-14 h-14 bg-gradient-to-br from-red-600 to-red-800 rounded-full flex items-center justify-center text-white font-black text-xl shadow-lg border-2 border-white dark:border-zinc-800">AH</div>
                   <div className="text-left">
                     <h3 className="font-black text-zinc-900 dark:text-white text-lg">Avinash Huse</h3>
-                    <p className="text-emerald-600 dark:text-emerald-500 text-xs font-bold uppercase tracking-widest">CEO & Founder</p>
+                    <p className="text-red-600 dark:text-red-500 text-xs font-bold uppercase tracking-widest">CEO & Founder</p>
                   </div>
                 </div>
               </div>

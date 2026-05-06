@@ -24,30 +24,39 @@ const DEFAULT_TOURNAMENTS: Tournament[] = [
     id: 't1', 
     name: "Gram Panchayat Cup 🏆", 
     location: "Solapur, MH", 
-    date: "10 May 2026", 
+    date: "10 May", 
+    startDate: "2026-05-10",
     timestamp: "2026-05-10T10:00:00Z",
     startTime: "10:00 AM",
-    spots: "2 Left!", 
+    spots: 2, 
+    totalSpots: 32,
+    matchType: "T20",
     status: "urgent" 
   },
   { 
     id: 't2', 
     name: "Kisan Premier League 🌾", 
     location: "Nashik, MH", 
-    date: "15 May 2026", 
+    date: "15 May", 
+    startDate: "2026-05-15",
     timestamp: "2026-05-15T09:00:00Z",
     startTime: "09:00 AM",
-    spots: "House Full 🚫", 
+    spots: 0, 
+    totalSpots: 24,
+    matchType: "ODI",
     status: "full" 
   },
   { 
     id: 't3', 
     name: "Rural Championship 🏏", 
     location: "Sangli, MH", 
-    date: "12 May 2026", 
+    date: "12 May", 
+    startDate: "2026-05-12",
     timestamp: "2026-05-12T08:00:00Z",
     startTime: "08:00 AM",
-    spots: "10 Left", 
+    spots: 10, 
+    totalSpots: 16,
+    matchType: "T10",
     status: "open" 
   },
 ];
@@ -205,10 +214,10 @@ export default function App() {
 
   if (isLoading) {
       return (
-          <div className="h-screen w-full flex items-center justify-center bg-zinc-950">
+          <div className="h-screen w-full flex items-center justify-center bg-white dark:bg-zinc-950">
               <div className="flex flex-col items-center gap-4">
-                  <div className="w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
-                  <p className="text-emerald-500 font-black tracking-widest text-xs uppercase animate-pulse">APNA CRICKET</p>
+                  <div className="w-12 h-12 border-4 border-red-600 border-t-transparent rounded-full animate-spin"></div>
+                  <p className="text-red-600 font-black tracking-widest text-xs uppercase animate-pulse">APNA CRICKET</p>
               </div>
           </div>
       );
@@ -232,8 +241,8 @@ export default function App() {
       
       {/* Dynamic Backgrounds - GPU Accelerated Optimization */}
       <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
-        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-emerald-500/5 dark:bg-emerald-500/10 rounded-full blur-[80px] transform-gpu"></div>
-        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-rose-500/5 dark:bg-rose-500/10 rounded-full blur-[80px] transform-gpu"></div>
+        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-red-600/5 dark:bg-red-600/10 rounded-full blur-[80px] transform-gpu"></div>
+        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-red-600/5 dark:bg-red-600/10 rounded-full blur-[80px] transform-gpu"></div>
       </div>
 
       {showConfigError && (window as any)._supabaseError && (

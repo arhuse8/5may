@@ -120,7 +120,7 @@ export const CreateMatchAuthModal: React.FC<{ isOpen: boolean; onClose: () => vo
     }
   };
 
-  const inputClass = "w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-3 font-bold text-zinc-900 dark:text-white outline-none focus:border-emerald-500 transition-colors mb-3 placeholder:text-zinc-400";
+  const inputClass = "w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-3 font-bold text-zinc-900 dark:text-white outline-none focus:border-red-600 transition-colors mb-3 placeholder:text-zinc-400";
 
   return (
     <AnimatePresence>
@@ -135,7 +135,7 @@ export const CreateMatchAuthModal: React.FC<{ isOpen: boolean; onClose: () => vo
           >
             {isLoading && (
               <div className="absolute inset-0 bg-white/50 dark:bg-zinc-900/50 backdrop-blur-[2px] z-50 flex items-center justify-center rounded-[2.5rem]">
-                <Loader2 className="animate-spin text-emerald-500" size={48} />
+                <Loader2 className="animate-spin text-red-600" size={48} />
               </div>
             )}
 
@@ -145,14 +145,14 @@ export const CreateMatchAuthModal: React.FC<{ isOpen: boolean; onClose: () => vo
             
             {mode === 'select' && (
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-4">
-                 <Shield className="mx-auto text-emerald-500 mb-4" size={48} />
+                 <Shield className="mx-auto text-red-600 mb-4" size={48} />
                  <h2 className="text-2xl font-black text-zinc-900 dark:text-white mb-2 uppercase tracking-wider">Creator Studio</h2>
                  <p className="text-sm text-zinc-500 font-medium mb-8">Access your dashboard to manage tournaments and live scoring.</p>
                  <div className="flex flex-col gap-4">
                     <motion.button 
                       whileTap={{ scale: 0.95 }} 
                       onClick={() => setMode('new')} 
-                      className="bg-emerald-500 hover:bg-emerald-600 text-white font-black py-4 rounded-xl shadow-lg shadow-emerald-500/30 uppercase tracking-wide text-sm transition-all"
+                      className="bg-red-600 hover:bg-red-700 text-white font-black py-4 rounded-xl shadow-lg shadow-red-600/30 uppercase tracking-wide text-sm transition-all"
                     >
                       New Organizer (Register)
                     </motion.button>
@@ -170,7 +170,7 @@ export const CreateMatchAuthModal: React.FC<{ isOpen: boolean; onClose: () => vo
             {(mode === 'new' || mode === 'old') && (
                <motion.div initial={{ opacity: 0, x: mode === 'new' ? 20 : -20 }} animate={{ opacity: 1, x: 0 }} className="space-y-2 pt-2">
                  <h2 className="text-xl font-black text-zinc-900 dark:text-white mb-6 uppercase tracking-wider flex items-center gap-2">
-                   {mode === 'new' ? <Plus className="text-emerald-500" size={24} /> : <Lock className="text-emerald-500" size={24} />}
+                   {mode === 'new' ? <Plus className="text-red-600" size={24} /> : <Lock className="text-red-600" size={24} />}
                    {mode === 'new' ? 'Register Profile' : 'Organizer Login'}
                  </h2>
 
@@ -181,13 +181,13 @@ export const CreateMatchAuthModal: React.FC<{ isOpen: boolean; onClose: () => vo
                  )}
 
                  {successMsg && (
-                   <div className="bg-emerald-500/10 border border-emerald-500/20 p-3 rounded-xl flex items-center gap-2 text-emerald-500 text-xs font-bold mb-4">
+                   <div className="bg-red-600/10 border border-red-600/20 p-3 rounded-xl flex items-center gap-2 text-red-600 text-xs font-bold mb-4">
                      <CheckCircle size={16} /> {successMsg}
                    </div>
                  )}
 
                  {mode === 'new' && (
-                   <input 
+                    <input 
                     placeholder="Full Name (e.g. Ramesh Singh)" 
                     className={inputClass} 
                     value={formData.name}
@@ -195,7 +195,7 @@ export const CreateMatchAuthModal: React.FC<{ isOpen: boolean; onClose: () => vo
                    />
                  )}
                  
-                 <div className="flex bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl overflow-hidden focus-within:border-emerald-500 transition-colors mb-3">
+                 <div className="flex bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl overflow-hidden focus-within:border-red-600 transition-colors mb-3">
                    <span className="inline-flex items-center px-4 bg-zinc-100 dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 font-bold border-r border-zinc-200 dark:border-zinc-800">+91</span>
                    <input 
                     type="tel" 
@@ -219,7 +219,7 @@ export const CreateMatchAuthModal: React.FC<{ isOpen: boolean; onClose: () => vo
                     whileTap={{ scale: 0.95 }} 
                     onClick={handleAction} 
                     disabled={isLoading || successMsg !== ""}
-                    className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-black py-4 rounded-xl mt-4 shadow-lg shadow-emerald-500/30 uppercase tracking-wide text-sm transition-all disabled:opacity-50"
+                    className="w-full bg-red-600 hover:bg-red-700 text-white font-black py-4 rounded-xl mt-4 shadow-lg shadow-red-600/30 uppercase tracking-wide text-sm transition-all disabled:opacity-50"
                   >
                     {mode === 'new' ? 'Create Account' : 'Access Dashboard'}
                   </motion.button>

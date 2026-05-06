@@ -49,6 +49,9 @@ const OrganizerDashboard: React.FC<OrganizerDashboardProps> = ({
   const [isCreatingTourney, setIsCreatingTourney] = useState(false);
   const [newTourneyName, setNewTourneyName] = useState("");
   const [newTourneyLoc, setNewTourneyLoc] = useState("");
+  const [newTourneyDate, setNewTourneyDate] = useState(new Date().toISOString().split('T')[0]);
+  const [newTourneySpots, setNewTourneySpots] = useState<number>(16);
+  const [newTourneyType, setNewTourneyType] = useState<Tournament['matchType']>('T20');
 
   // Real-time Scoring State
   const [isAdvancedScoring, setIsAdvancedScoring] = useState(false);
@@ -87,31 +90,48 @@ const OrganizerDashboard: React.FC<OrganizerDashboardProps> = ({
     }
   };
 
+  /**
+   * handleCreateTournament
+   * 
+   * Orchestrates the registration of a new tournament event.
+   * Handles both local state (Demo Mode) and Supabase persistence (Production Mode).
+   * 
+   * @param newT - The constructed tournament object with required fields.
+   */
   const handleCreateTournament = async () => {
-    if (!newTourneyName || !newTourneyLoc) {
+    // 1. Validation check for mandatory fields
+    if (!newTourneyName || !newTourneyLoc || !newTourneyDate) {
       setToastMsg("Please fill all fields! ⚠️");
       return;
     }
 
+    // 2. Construct the high-fidelity tournament object
     const newT: Tournament = { 
       id: Math.random().toString(36).substr(2, 9),
       name: newTourneyName + (newTourneyName.includes('🏆') ? '' : ' 🏆'), 
       location: newTourneyLoc, 
-      date: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }), 
+      startDate: newTourneyDate,
+      date: new Date(newTourneyDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }), 
       timestamp: new Date().toISOString(),
       startTime: "10:00 AM",
-      spots: "16 Slots", 
+      spots: newTourneySpots, 
+      totalSpots: newTourneySpots,
+      matchType: newTourneyType,
       status: "open",
       creator_id: user?.id
     } as any;
 
+    // 3. Fallback logic for when DB is not configured (Mock/Demo experience)
     if (!isSupabaseConfigured) {
       if (onAddTournamentLocal) onAddTournamentLocal(newT);
-      setNewTourneyName(""); setNewTourneyLoc(""); setIsCreatingTourney(false);
+      setNewTourneyName(""); 
+      setNewTourneyLoc(""); 
+      setIsCreatingTourney(false);
       setToastMsg("Tournament added (Demo Mode)! 🚀");
       return;
     }
 
+    // 4. Production-grade Supabase insertion
     try {
       const { error } = await supabase
         .from('tournaments')
@@ -119,17 +139,25 @@ const OrganizerDashboard: React.FC<OrganizerDashboardProps> = ({
           name: newT.name, 
           location: newT.location, 
           date: newT.date, 
+          start_date: newT.startDate,
           spots: newT.spots, 
+          total_spots: newT.totalSpots,
+          match_type: newT.matchType,
           status: newT.status,
           creator_id: user?.id
         }]);
         
       if (error) throw error;
+      
+      // 5. Clean up local form state on success
       setNewTourneyName(""); 
       setNewTourneyLoc(""); 
       setIsCreatingTourney(false);
       setToastMsg("Tournament is now LIVE! 🚀");
-    } catch (e) { console.error(e); }
+    } catch (e) { 
+      console.error("[DB_ERROR]: Tournament creation failed.", e); 
+      setToastMsg("Database sync failed. ⚠️");
+    }
   };
 
   const handleDeleteTournament = async (id?: string) => {
@@ -242,18 +270,61 @@ const OrganizerDashboard: React.FC<OrganizerDashboardProps> = ({
                     <Plus size={16} className="text-emerald-500" /> Register Local Event
                   </h3>
                   <div className="space-y-4 mb-6">
-                    <input 
-                        value={newTourneyName} 
-                        onChange={(e)=>setNewTourneyName(e.target.value)} 
-                        placeholder="Tournament Name (e.g. Village Cup)" 
-                        className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-4 font-bold text-sm outline-none focus:border-emerald-500 transition-colors" 
-                    />
-                    <input 
-                        value={newTourneyLoc} 
-                        onChange={(e)=>setNewTourneyLoc(e.target.value)} 
-                        placeholder="Ground / Location (e.g. Solapur, MH)" 
-                        className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-4 font-bold text-sm outline-none focus:border-emerald-500 transition-colors" 
-                    />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500 ml-1">Event Name</label>
+                        <input 
+                            value={newTourneyName} 
+                            onChange={(e)=>setNewTourneyName(e.target.value)} 
+                            placeholder="e.g. Village Cup" 
+                            className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-3 font-bold text-sm outline-none focus:border-emerald-500 transition-colors" 
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500 ml-1">Location</label>
+                        <input 
+                            value={newTourneyLoc} 
+                            onChange={(e)=>setNewTourneyLoc(e.target.value)} 
+                            placeholder="e.g. Solapur, MH" 
+                            className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-3 font-bold text-sm outline-none focus:border-emerald-500 transition-colors" 
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500 ml-1">Start Date</label>
+                        <input 
+                            type="date"
+                            value={newTourneyDate} 
+                            onChange={(e)=>setNewTourneyDate(e.target.value)} 
+                            className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-3 font-bold text-sm outline-none focus:border-emerald-500 transition-colors" 
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500 ml-1">Total Teams</label>
+                        <input 
+                            type="number"
+                            value={newTourneySpots} 
+                            onChange={(e)=>setNewTourneySpots(Number(e.target.value))} 
+                            placeholder="16" 
+                            className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-3 font-bold text-sm outline-none focus:border-emerald-500 transition-colors" 
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500 ml-1">Match Type</label>
+                        <select 
+                            value={newTourneyType} 
+                            onChange={(e)=>setNewTourneyType(e.target.value as any)} 
+                            className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-3 font-bold text-sm outline-none focus:border-emerald-500 transition-colors"
+                        >
+                          <option value="T20">T20</option>
+                          <option value="ODI">ODI</option>
+                          <option value="T10">T10</option>
+                          <option value="Gully">Gully Cricket</option>
+                        </select>
+                      </div>
+                    </div>
                   </div>
                   <button 
                     onClick={handleCreateTournament} 
