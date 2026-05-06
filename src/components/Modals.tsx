@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Shield, Plus, Lock, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
+import { X, Shield, Plus, Lock, CheckCircle, AlertCircle, Loader2, Trophy } from 'lucide-react';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import bcrypt from 'bcryptjs';
 
@@ -145,25 +145,47 @@ export const CreateMatchAuthModal: React.FC<{ isOpen: boolean; onClose: () => vo
             
             {mode === 'select' && (
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-4">
-                 <Shield className="mx-auto text-red-600 mb-4" size={48} />
-                 <h2 className="text-2xl font-black text-zinc-900 dark:text-white mb-2 uppercase tracking-wider">Creator Studio</h2>
-                 <p className="text-sm text-zinc-500 font-medium mb-8">Access your dashboard to manage tournaments and live scoring.</p>
-                 <div className="flex flex-col gap-4">
+                 <div className="flex items-center justify-center gap-2 mb-6">
+                    <div className="w-12 h-12 bg-red-600 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-red-600/20">
+                      <Trophy size={28} />
+                    </div>
+                 </div>
+                 <h2 className="text-2xl font-black text-zinc-900 dark:text-white mb-2 uppercase tracking-tighter italic flex items-center justify-center gap-2">
+                    APNA <span className="text-red-600">CRICKET</span>
+                 </h2>
+                 <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-black rounded-lg text-[8px] font-black text-white uppercase tracking-widest mb-8">
+                    <span className="italic">G</span> GNZ_ENGINE ACCESS
+                 </div>
+                 
+                 <div className="flex flex-col gap-3">
                     <motion.button 
-                      whileTap={{ scale: 0.95 }} 
-                      onClick={() => setMode('new')} 
-                      className="bg-red-600 hover:bg-red-700 text-white font-black py-4 rounded-xl shadow-lg shadow-red-600/30 uppercase tracking-wide text-sm transition-all"
-                    >
-                      New Organizer (Register)
-                    </motion.button>
-                    <motion.button 
-                      whileTap={{ scale: 0.95 }} 
+                      whileTap={{ scale: 0.98 }} 
                       onClick={() => setMode('old')} 
-                      className="bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white font-black py-4 rounded-xl border border-zinc-200 dark:border-zinc-700 uppercase tracking-wide text-sm hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all"
+                      className="group bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 font-black py-5 rounded-2xl flex items-center justify-between px-6 transition-all hover:scale-[1.02]"
                     >
-                      Existing Organizer (Login)
+                      <div className="flex flex-col items-start">
+                        <span className="text-xs font-black uppercase tracking-widest text-zinc-500 mb-0.5">Existing Player</span>
+                        <span className="text-sm uppercase tracking-tight">Sign In</span>
+                      </div>
+                      <Lock size={20} className="text-red-600" />
+                    </motion.button>
+
+                    <motion.button 
+                      whileTap={{ scale: 0.98 }} 
+                      onClick={() => setMode('new')} 
+                      className="group bg-white dark:bg-zinc-900 border-2 border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-white font-black py-5 rounded-2xl flex items-center justify-between px-6 transition-all hover:border-red-600/50 hover:scale-[1.02]"
+                    >
+                      <div className="flex flex-col items-start">
+                        <span className="text-xs font-black uppercase tracking-widest text-zinc-400 mb-0.5">New Account</span>
+                        <span className="text-sm uppercase tracking-tight">Create Profile</span>
+                      </div>
+                      <Plus size={20} className="text-red-600" />
                     </motion.button>
                  </div>
+
+                 <p className="mt-8 text-[10px] font-bold text-zinc-400 uppercase tracking-widest">
+                    Secured by GNZ Identity Module 1.0.4
+                 </p>
               </motion.div>
             )}
 

@@ -55,6 +55,10 @@ const UserApp: React.FC<UserAppProps> = ({ score, tournaments, ticker, isDarkMod
   }, []);
 
   const handleNavigate = (newView: UserSubView) => {
+    if (newView === UserSubView.PROFILE && !isAuthenticated) {
+      setIsAuthModalOpen(true);
+      return;
+    }
     const currentIndex = viewOrder.indexOf(activeSubView);
     const nextIndex = viewOrder.indexOf(newView);
     setDirection(nextIndex > currentIndex ? 1 : -1);
@@ -75,6 +79,13 @@ const UserApp: React.FC<UserAppProps> = ({ score, tournaments, ticker, isDarkMod
   const handleJoin = () => {
     if (!isAuthenticated) setIsAuthModalOpen(true);
     else setToastMsg("Successfully requested to join! 🔥");
+  };
+
+  const handleAuthSuccess = () => {
+    setIsAuthModalOpen(false);
+    setIsAuthenticated(true);
+    setToastMsg("Welcome to Apna Cricket! 👋");
+    setActiveSubView(UserSubView.PROFILE);
   };
 
   const handleOrganizerSuccess = () => {
@@ -410,6 +421,12 @@ const UserApp: React.FC<UserAppProps> = ({ score, tournaments, ticker, isDarkMod
         onSecretTrigger={() => onOrganizerLogin()} 
       />
       
+      <CreateMatchAuthModal 
+        isOpen={isAuthModalOpen} 
+        onClose={() => setIsAuthModalOpen(false)} 
+        onSuccess={handleAuthSuccess} 
+      />
+
       <CreateMatchAuthModal 
         isOpen={isOrganizerAuthOpen} 
         onClose={() => setIsOrganizerAuthOpen(false)} 
